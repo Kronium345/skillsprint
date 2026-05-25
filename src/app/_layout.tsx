@@ -1,16 +1,33 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { ThemeProvider } from '@react-navigation/native';
+import { Stack } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import React from 'react';
-import { useColorScheme } from 'react-native';
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import { AuthGate } from '@/components/AuthGate';
+import { AuthProvider } from '@/providers/AuthProvider';
+import { FontProvider } from '@/providers/FontProvider';
+import { QueryProvider } from '@/providers/QueryProvider';
+import { MidnightNavigationTheme } from '@/theme/navigation';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <FontProvider>
+      <QueryProvider>
+        <AuthProvider>
+          <ThemeProvider value={MidnightNavigationTheme}>
+            <StatusBar style="light" />
+            <AuthGate>
+              <Stack screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="(auth)" />
+                <Stack.Screen name="(tabs)" />
+                <Stack.Screen name="tracks" />
+                <Stack.Screen name="courses" />
+                <Stack.Screen name="lessons" />
+              </Stack>
+            </AuthGate>
+          </ThemeProvider>
+        </AuthProvider>
+      </QueryProvider>
+    </FontProvider>
   );
 }
