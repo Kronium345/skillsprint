@@ -11,8 +11,10 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   if (isLoading) return <LoadingScreen />;
 
   const inAuthGroup = segments[0] === '(auth)';
-  const inTabs = segments[0] === '(tabs)';
-  const inTracks = segments[0] === 'tracks';
+  const inAppRoute = segments[0] === '(tabs)'
+    || segments[0] === 'tracks'
+    || segments[0] === 'courses'
+    || segments[0] === 'lessons';
 
   if (!isAuthenticated && !inAuthGroup) {
     return <Redirect href="/(auth)/welcome" />;
@@ -23,10 +25,6 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   }
 
   if (isAuthenticated && !needsOnboarding && inAuthGroup) {
-    return <Redirect href="/(tabs)" />;
-  }
-
-  if (isAuthenticated && !inTabs && !inTracks && !inAuthGroup) {
     return <Redirect href="/(tabs)" />;
   }
 

@@ -16,6 +16,7 @@ import { FlashcardDeck } from '@/components/FlashcardDeck';
 import { LessonQuiz } from '@/components/LessonQuiz';
 import { AppText } from '@/components/ui/AppText';
 import { GradientButton } from '@/components/ui/GradientButton';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 import { useAuth } from '@/providers/AuthProvider';
 import api from '@/lib/api';
 import tw from '@/lib/twrnc';
@@ -148,9 +149,7 @@ export default function LessonScreen() {
           </Pressable>
         )}
 
-        <AppText variant="body" style={tw`leading-7`}>
-          {lesson.content}
-        </AppText>
+        <MarkdownContent>{lesson.content}</MarkdownContent>
 
         {lesson.keyTerms.length > 0 && (
           <View style={tw`gap-2`}>
