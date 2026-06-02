@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, Stack, useLocalSearchParams } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
@@ -47,6 +48,16 @@ export default function CourseDetailScreen() {
   }, [lessons]);
 
   const isLoading = loadingCourse || loadingLessons;
+
+  useEffect(() => {
+    if (!course) return;
+    AsyncStorage.multiSet([
+      ['lastCourseId', course._id],
+      ['lastCourseTitle', course.title],
+    ]).catch(() => {
+      // Non-blocking: reminders can still work without this.
+    });
+  }, [course]);
 
   return (
     <>

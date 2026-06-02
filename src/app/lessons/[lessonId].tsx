@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as WebBrowser from 'expo-web-browser';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -94,6 +95,17 @@ export default function LessonScreen() {
   const handleQuizComplete = (score: number, _total: number) => {
     completeMutation.mutate(score);
   };
+
+  useEffect(() => {
+    if (!lesson) return;
+    AsyncStorage.multiSet([
+      ['lastLessonId', lesson.id],
+      ['lastLessonTitle', lesson.title],
+      ['lastCourseId', lesson.courseId],
+    ]).catch(() => {
+      // Non-blocking persistence for reminder personalization.
+    });
+  }, [lesson]);
 
   if (isLoading || !lesson) {
     return (
