@@ -1,20 +1,37 @@
 import Constants from 'expo-constants';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
-
 const DEFAULT_CHANNEL_ID = 'learning-reminders';
+let cachedNotifications: typeof import('expo-notifications') | null | undefined;
+
+async function getNotificationsModule() {
+  if (cachedNotifications !== undefined) return cachedNotifications;
+  try {
+    cachedNotifications = await import('expo-notifications');
+  } catch {
+    cachedNotifications = null;
+  }
+  return cachedNotifications;
+}
+
+export async function initializeNotificationsAsync() {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return false;
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+  return true;
+}
 
 export async function configureNotificationChannelAsync() {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return;
   if (Platform.OS !== 'android') return;
   await Notifications.setNotificationChannelAsync(DEFAULT_CHANNEL_ID, {
     name: 'Learning reminders',
@@ -25,6 +42,8 @@ export async function configureNotificationChannelAsync() {
 }
 
 export async function registerForPushNotificationsAsync() {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return null;
   await configureNotificationChannelAsync();
 
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -56,6 +75,8 @@ export async function registerForPushNotificationsAsync() {
 }
 
 export async function scheduleDailyLearningReminderAsync(hour = 19, minute = 0) {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return null;
   return Notifications.scheduleNotificationAsync({
     content: {
       title: 'SkillSprint reminder',
@@ -74,6 +95,8 @@ export async function scheduleResumeCourseReminderAsync(
   courseTitle: string,
   courseId?: string | null,
 ) {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return null;
   const path = courseId ? `/courses/${courseId}` : '/(tabs)/courses';
   return Notifications.scheduleNotificationAsync({
     content: {
@@ -89,5 +112,7 @@ export async function scheduleResumeCourseReminderAsync(
 }
 
 export async function cancelAllRemindersAsync() {
+  const Notifications = await getNotificationsModule();
+  if (!Notifications) return;
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
